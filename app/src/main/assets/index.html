@@ -383,9 +383,10 @@
 
   <input type="file" id="file-input" multiple accept="audio/*,video/*" style="display:none;" />
   <input type="file" id="folder-input" webkitdirectory directory multiple style="display:none;" />
-  <audio id="aud" crossorigin="anonymous"></audio>
+  <audio id="aud" preload="auto"></audio>
 
   <script>
+    window.addEventListener('DOMContentLoaded',()=>{const a=document.getElementById('aud'); if(a) a.addEventListener('error',()=>{ try{showToast('Playback error '+(a.error?a.error.code:''))}catch(e){} });});
     window.__XI_ASSET_BASE__ = '';
     const resolveAsset = p => !p || /^https?:|^blob:|^data:/i.test(p) ? (p || '') : (window.__XI_ASSET_BASE__ ? window.__XI_ASSET_BASE__.replace(/\/$/, '') + p : p);
 
@@ -466,6 +467,7 @@
 
     // Web Audio 5-Band EQ + Dynamic Gain Normalization
     function ensureAudioEngine() {
+      if (typeof AndroidMedia !== 'undefined') return; // native WebView: content:// URIs are cross-origin, Web Audio would mute them
       if (audioEngine.wired) { if (audioEngine.ctx?.state === 'suspended') audioEngine.ctx.resume().catch(()=>{}); return; }
       try {
         const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
@@ -786,7 +788,7 @@
       if (tr.kind === 'video') { aud.pause(); pushNavSnapshot(); state.videoId = tr.id; state.tab = 'video'; syncCategoryTabUI(); render('drill'); return; }
       ensureAudioEngine(); state.curId = tr.id;
       if (!state.queueIds.includes(tr.id)) rebuildQueue(tr.id);
-      aud.src = tr.url; aud.playbackRate = state.speed || 1; measureTrackRms(tr);
+      aud.src = tr.url; aud.playbackRate = state.speed || 1; if (typeof AndroidMedia === 'undefined') measureTrackRms(tr);
       aud.play().catch(()=>{}); updateMiniPlayer(); if (state.fsOpen) renderFullScreenPlayer(); render();
     }
 
