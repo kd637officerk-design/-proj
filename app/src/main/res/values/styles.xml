@@ -1,0 +1,5 @@
+<resources>
+  <style name="Theme.AETERNISM" parent="android:style/Theme.Material.Light.NoActionBar">
+    <item name="android:fontFamily">sans</item><item name="android:navigationBarColor">#040508</item><item name="android:statusBarColor">#040508</item><item name="android:windowLightStatusBar">false</item>
+  </style>
+</resources>
